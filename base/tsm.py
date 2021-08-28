@@ -30,6 +30,4 @@ class TSM(object):
         if flush:
             finished = False
             while not finished:
-                _, finished = self.flushTo(writer)
-
-        
+                _, finished = self.flushTo(writer)  

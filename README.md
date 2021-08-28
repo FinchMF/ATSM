@@ -1,3 +1,3 @@
 # ATSM
 
-Audio Time Manipulation
+Audio Time Scale Modulation

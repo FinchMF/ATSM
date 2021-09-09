@@ -49,9 +49,37 @@ class NormalizeBuffer(object):
             self.data[:end] += window[self.length - start:]
 
     def remove(self, n: int):
+        """function to remove the first n values"""
+        if n >= self.length:
+            n: int = self.length
+        if n == 0:
+            return
+        
+        start, end = self.computeSlice(n=n)
 
-        pass
+        if end <= self.length:
+            self.data[start:end]
+        else:
+            end -= self.length
+            self.data[start:]: int = 0
+            self.data[:end]: int = 0
     
     def to_array(self, start: int = 0, end: int = None) -> np.ndarray:
+        """function to return array copied from :class:`NormalizeBuffer` 
+           from ``start`` (included) to ``end`` (excluded)"""  
 
-        pass   
+        if end is None:
+            end: int = self.length
+
+        start += self.offset
+        end += self.offset
+
+        if end <= self.length:
+            return np.copy(self.data[start:end])
+
+        end -= self.length
+        if start < self.length:
+            return np.copy(self.data[start:end])
+
+        start -= self.length
+        return np.copy(self.data[start:end])

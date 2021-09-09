@@ -126,10 +126,4 @@ class A2S_TSM(TSM):
             (self.channels, self.frame_length + delta)
         )
         self.__out_buffer: np.ndarray = CBuffer(self.channels, self.frame_length)
-        # build normalize buffer
-
-
-
-
-
-    
+        # build normalize buffer    

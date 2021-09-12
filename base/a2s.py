@@ -3,7 +3,10 @@ import numpy as np
 
 from ATSM.utils.windows import Windows as W
 from ATSM.utils.CBuffer import CBuffer
+from ATSM.utils.normalize_window import NormalizeBuffer
 from .tsm import TSM
+
+EPSILON: float = 0.0001
 
 class A2S_TSM(TSM):
 
@@ -31,6 +34,7 @@ class A2S_TSM(TSM):
         self.__normalize_window: np.ndarray = W.product(self.analysis_window,
                                                         self.synthesis_window)
         self.checkNormalWindow()
+        self.initializeBuffers()
 
     @property
     def converter(self) -> object:
@@ -112,6 +116,10 @@ class A2S_TSM(TSM):
     def anaylsis_frame(self, n: np.ndarray):
         self.__analysis_frame: np.ndarray = n
 
+    @property
+    def normalize_buffer(self) -> NormalizeBuffer:
+        return self.__normalize_buffer
+
     
     def checkNormalWindow(self):
         """function to check normalized window"""
@@ -126,4 +134,123 @@ class A2S_TSM(TSM):
             (self.channels, self.frame_length + delta)
         )
         self.__out_buffer: np.ndarray = CBuffer(self.channels, self.frame_length)
-        # build normalize buffer    
+        self.__normalize_buffer = NormalizeBuffer(self.frame_length)
+
+        self.clear()
+
+    def clear(self):
+        # clear buffers
+        self.in_buffer.remove(self.in_buffer.length)
+        self.out_buffer.remove(self.out_buffer.length)
+        self.out_buffer.right_pad(self.frame_length)
+        self.normalize_buffer.remove(self.normalize_buffer.length)
+        # move to the middle of the frame
+        self.in_buffer.write(np.zeros(
+            (self.channels, self.delta_before + self.frame_length // 2)))
+        self.skip_input_samples = self.frame_length // 2
+        # clear the converter
+        self.converter.clear()
+
+    def flush_to(self, writer: object) -> tuple:
+        
+        if self.in_buffer.remaining_length == 0:
+            raise RuntimeError("There is still data to process in the input buffer, \
+                                flush_to only to be called when write_to returns True")
+
+        n: int = self.out_buffer.write_to(writer)
+        if self.out_buffer.ready == 0:
+            self.clear()
+            result: tuple =  (n, True)
+        else:
+            result: tuple = (n, False)
+
+        return result
+
+    def get_max_output_length(self, input_lenght: int) -> int:
+
+        input_length -= self.skip_input_samples
+        if input_length <= 0:
+            n_frames: int = 0
+        else:
+            n_frames: int = input_lenth // self.analysis_hop + 1
+        
+        return n_frames * self.synthesis_hop
+
+    def _process_frame(self):
+        """read an analysis frame from the input buffer, process it and write
+            to output buffer"""
+        # gen analysis frame and remove unneeded samples
+        self.in_buffer.peek(self.analysis_frame)
+        self.in_buffer.remove(self.analysis_hop)
+
+        W.apply(self.analysis_frame, self.analysis_window)
+
+        synthesis_frame: int = self.converter.convert_frame(self.analysis_frame)
+
+        W.apply(synthesis_frame, self.synthesis_window)
+
+        self.out_buffer.add(synthesis_frame)
+
+        self.normalize_buffer.add(self.normalize_window)
+
+        normalize: object = self.normalize_buffer.to_array(end=self.analysis_hop)
+        normalize[normalize < EPSILON]: int = 1
+        self.out_buffer.divide(normalize)
+        self.out_buffer.set_ready(self.synthesis_hop)
+        self.normalize_buffer.remove(self.synthesis_hop)
+
+    def read_from(self, reader: object) -> int:
+
+        n: int = reader.skip(self.skip_input_samples)
+        self.skip_input_samples -= n
+
+        if self.skip_input_samples > 0:
+            result: int = n
+
+        else:
+            n += self.in_buffer.read_from(reader)
+            result: int = n
+            if (self.in_buffer.remaining_length == 0 and 
+                self.out_buffer.remaining_length >= self.synthesis_hop):
+                # store output in the output buffer
+                self._process_frame()
+                # skip output samples if necessary
+                skipped: int = self.out_buffer.remove(self.skip_output_samples)
+                self.out_buffer.right_pad(skipped)
+                self.skip_output_samples -= skipped
+                # set the number of input samples to be skipped
+                self.skip_input_samples: int = self.analysis_hop - self.frame_length
+                if self.skip_input_samples < 0:
+                    self.skip_input_samples = 0
+
+        return result
+
+    def set_speed(self, speed: float):
+
+        self.analysis_hop: int = int(self.synthesis_hop * speed)
+        self.converter.set_analysis_hop(self.analysis_hop)
+
+    def write_to(self, writer: object) -> tuple: 
+
+        n: int = self.out_buffer.write_to(writer)
+        self.out_buffer.right_pad(n)
+
+        if (self.in_buffer.remaining_length > 0 and self.out_buffer.ready == 0):
+            result: tuple = (n, True)
+        
+        else:
+            result: tuple = (n, False)
+
+        return result
+
+
+class Converter(object):
+
+    def clear(self):
+        return
+
+    def convert_frame(self, analysis_frame: int):
+        raise NotImplementedError
+
+    def set_analysis_hop(self, analysist_hop: int):
+        return

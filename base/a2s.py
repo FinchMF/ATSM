@@ -1,9 +1,8 @@
 
 import numpy as np
 
-from ATSM.utils.windows import Windows as W
-from ATSM.utils.CBuffer import CBuffer
-from ATSM.utils.normalize_window import NormalizeBuffer
+from ATSM.utils import Windows as W
+from ATSM.utils import CBuffer, NormalizeBuffer
 from .tsm import TSM
 
 EPSILON: float = 0.0001

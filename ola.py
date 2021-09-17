@@ -17,7 +17,7 @@ class OLA(OLAConverter):
                        sythesis_hop: int = None):
 
         super().__init__()
-        self.__converter: OLAConverter = super()
+        self.__converter: Converter = super()
         self.__channels: int = channels
         self.__speed: float = speed
         self.__frame_length: int = frame_length

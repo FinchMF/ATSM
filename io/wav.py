@@ -45,11 +45,11 @@ class WavIn(base.Reader):
             raise ValueError('the buffer should have the number\
                                of channels as the WavIn')
 
-        frames: int = self.reader.readframes(buffer.shape[1])
+        frames: np.ndarray = self.reader.readframes(buffer.shape[1])
         frames: np.ndarray = np.frombuffer(frames, '<i2').astype(np.float32) / 32676
 
         # separate channels
-        framse: int = frames.reshape((-1, self.channels)).T
+        frames: np.ndarray = frames.reshape((-1, self.channels)).T
 
         n: int = frames.shape[1]
         np.copyto(buffer[:, :n], frames)

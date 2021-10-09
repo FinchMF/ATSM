@@ -1,11 +1,12 @@
 
 from ATSM.base import A2S_TSM, Converter
 from ATSM.utils import Windows as W
+import numpy as np
 
 
 class OLAConverter(Converter):
 
-    def convert_frame(self, analysis_frame: int) -> int:
+    def convert_frame(self, analysis_frame: np.ndarray) -> np.ndarray:
         return analysis_frame
 
 
@@ -15,8 +16,8 @@ class OLA(OLAConverter):
                        frame_length: int = 256, 
                        analysis_hop: int = None,
                        synthesis_hop: int = None):
-
-        self.__converter: OLAConverter = OLAConverter()
+        super().__init__()
+        self.__converter: OLAConverter = super()
         self.__channels: int = channels
         self.__speed: float = speed
         self.__frame_length: int = frame_length

@@ -188,11 +188,11 @@ class CBuffer(object):
             end -= self.max_length
             self.data[:, start:]: int = 0
             self.data[:, :end]: int = 0
-        print(self.offset)
+
         self.offset += n
         self.offset %= self.max_length
         self.length -= n
-        print(self.offset)
+
 
         self.ready -= n
         if self.ready < 0:

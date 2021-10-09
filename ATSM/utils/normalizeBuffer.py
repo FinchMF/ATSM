@@ -42,7 +42,6 @@ class NormalizeBuffer(object):
             raise ValueError('the window should be smaller than the \
                               NormalizeBuffer')
 
-        #start, end = self.computeSlice(n=n)
         start = self.offset
         end = self.offset + n
 
@@ -57,19 +56,20 @@ class NormalizeBuffer(object):
     def remove(self, n: int):
         """function to remove the first n values"""
         if n >= self.length:
-            n: int = self.length
+            n = self.length
         if n == 0:
             return
-        print('N', n)
-        start, end = self.computeSlice(n=n)
-        print('START - remove', start)
-        print('END - remove', end)
+
+        # Compute the slice of data to reset
+        start = self.offset
+        end = self.offset + n
+
         if end <= self.length:
-            self.data[start:end]
+            self.data[start:end] = 0
         else:
             end -= self.length
-            self.data[start:]: int = 0
-            self.data[:end]: int = 0
+            self.data[start:] = 0
+            self.data[:end] = 0
 
         self.offset += n
         self.offset %= self.length
@@ -83,8 +83,6 @@ class NormalizeBuffer(object):
 
         start += self.offset
         end += self.offset
-        print('START', start)
-        print('END', end)
 
         if end <= self.length:
             return np.copy(self.data[start:end])

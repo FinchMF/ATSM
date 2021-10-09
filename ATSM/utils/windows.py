@@ -25,12 +25,9 @@ class Windows:
     def product(window_1: np.ndarray, window_2: np.ndarray) -> (np.ndarray, None):
 
         if window_1 is None:
-            W: np.ndarray = window_2
+            return window_2
 
-        elif window_2 is None:
-            W: np.ndarray = window_1
+        if window_2 is None:
+            return window_1
 
-        else:
-            W: np.ndarray = window_1 * window_2 
-        
-        return W
+        return window_1 * window_2

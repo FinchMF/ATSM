@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.7
 import argparse
 from ATSM import PhaseVocoder, WSOLA, OLA
 from ATSM.io.wav import WavIn, WavOut

@@ -34,22 +34,22 @@ class A2S_TSM(TSM):
         self.__normalize_window: np.ndarray = W.product(self.analysis_window,
                                                         self.synthesis_window)
 
-        if self.normalize_window is None:
-            self.normalize_window: np.ndarray = np.ones(self.frame_length)
+        # if self.normalize_window is None:
+        #     self.normalize_window: np.ndarray = np.ones(self.frame_length)
 
-        delta: int = self.delta_before + self.delta_after
-        # check cbuffer 
-        self.__in_buffer = CBuffer(self.channels, self.frame_length + delta)
-        self.__analysis_frame: np.ndarray = np.empty(
-            (self.channels, self.frame_length + delta)
-        )
-        self.__out_buffer = CBuffer(self.channels, self.frame_length)
-        self.__normalize_buffer = NormalizeBuffer(self.frame_length)
+        # delta: int = self.delta_before + self.delta_after
+        # # check cbuffer 
+        # self.__in_buffer = CBuffer(self.channels, self.frame_length + delta)
+        # self.__analysis_frame: np.ndarray = np.empty(
+        #     (self.channels, self.frame_length + delta)
+        # )
+        # self.__out_buffer = CBuffer(self.channels, self.frame_length)
+        # self.__normalize_buffer = NormalizeBuffer(self.frame_length)
 
-        self.clear()
+        # self.clear()
         
-        # self.checkNormalWindow()
-        # self.initializeBuffers()
+        self.checkNormalWindow()
+        self.initializeBuffers()
 
     @property
     def converter(self) -> object:
@@ -210,7 +210,6 @@ class A2S_TSM(TSM):
         return n_frames * self.synthesis_hop
 
     def _process_frame(self):
-        # print('process')
         """read an analysis frame from the input buffer, process it and write
             to output buffer"""
         # gen analysis frame and remove unneeded samples
@@ -218,31 +217,20 @@ class A2S_TSM(TSM):
         self.in_buffer.remove(self.analysis_hop)
 
         W.apply(self.analysis_frame, self.analysis_window)
-        # print('ANALYSIS FRAME')
-        # print(self.analysis_frame)
-        # print('ANALYSIS WINDOW')
-        # print(self.analysis_window)
 
         synthesis_frame: int = self.converter.convert_frame(self.analysis_frame)
-        # print('SYNTH FRAME')
-        # print(synthesis_frame)
+
         W.apply(synthesis_frame, self.synthesis_window)
-        # print('APPLIED')
-        # print(synthesis_frame)
+
         self.out_buffer.add(synthesis_frame)
         self.normalize_buffer.add(self.normalize_window)
-        # print(self.normalize_buffer)
-        # # print('SYNTH HOP')
-        # print(self.synthesis_hop)
+
         normalize: object = self.normalize_buffer.to_array(end=self.synthesis_hop)
-        # print("NORMALIZE")
-        # print(normalize)
+
         normalize[normalize < EPSILON] = 1
         self.out_buffer.divide(normalize)
         self.out_buffer.set_ready(self.synthesis_hop)
         self.normalize_buffer.remove(self.synthesis_hop)
-        # print(self.normalize_buffer)
-        # print('end process')
 
     def readFrom(self, reader: object) -> int:
 

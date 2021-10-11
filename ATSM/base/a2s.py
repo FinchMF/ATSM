@@ -158,7 +158,6 @@ class A2S_TSM(TSM):
             self.normalize_window: np.ndarray = np.ones(self.frame_length)
 
     def initializeBuffers(self):
-        # try not placing this in this function
         """function to initialize buffers"""
         delta: int = self.delta_before + self.delta_after
         self.__in_buffer: np.ndarray = CBuffer(self.channels, self.frame_length + delta)
@@ -172,7 +171,6 @@ class A2S_TSM(TSM):
 
     def clear(self):
         # clear buffers
-        # print('CLEARING')
         self.in_buffer.remove(self.in_buffer.length)
         self.out_buffer.remove(self.out_buffer.length)
         self.out_buffer.right_pad(self.frame_length)

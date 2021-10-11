@@ -21,7 +21,7 @@ class Modulator(object):
             self.converter = WSOLA
 
         elif time_scale.lower() == 'ola':
-            self.converter = OLA
+                self.converter = OLA
 
         else:
             raise ModulatorError(f'Time Modulation type not supported: {time_scale}\

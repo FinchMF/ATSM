@@ -34,22 +34,7 @@ class A2S_TSM(TSM):
         self.__skip_output_samples: int = 0
 
         self.__normalize_window: np.ndarray = W.product(self.analysis_window,
-                                                        self.synthesis_window)
-
-        # if self.normalize_window is None:
-        #     self.normalize_window: np.ndarray = np.ones(self.frame_length)
-
-        # delta: int = self.delta_before + self.delta_after
-        # # check cbuffer 
-        # self.__in_buffer = CBuffer(self.channels, self.frame_length + delta)
-        # self.__analysis_frame: np.ndarray = np.empty(
-        #     (self.channels, self.frame_length + delta)
-        # )
-        # self.__out_buffer = CBuffer(self.channels, self.frame_length)
-        # self.__normalize_buffer = NormalizeBuffer(self.frame_length)
-
-        # self.clear()
-        
+                                                        self.synthesis_window)        
         self.checkNormalWindow()
         self.initializeBuffers()
 

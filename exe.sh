@@ -1,5 +1,5 @@
 #!/bin/bash
-./scaleAudio.py -i=$1 -o=example_s.wav -t=phasevocoder -s=0.5
+./scaleAudio.py -i=$1 -o=example.wav -t=phasevocoder -s=0.5
 
 # i = input wav file name
 # o = output wav file name

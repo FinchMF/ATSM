@@ -1,6 +1,7 @@
 """
 module containing PhaseVocoder algorithim
 """
+
 import numpy as np
 from ATSM.base import A2S_TSM, Converter
 from ATSM.utils import Windows as W

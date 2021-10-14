@@ -1,4 +1,8 @@
 #!/usr/bin/env python3.7
+"""
+module containing process implemented
+"""
+
 from ATSM import PhaseVocoder, OLA
 from ATSM.io.wav import WavIn, WavOut
 

@@ -1,6 +1,7 @@
 """
 module containing base classes for audio readers and writers
 """
+
 class Reader(object):
     """base class for reading audio data"""
     @property
@@ -34,10 +35,11 @@ class Writer(object):
         """function to set channels"""
         raise NotImplementedError()
 
+
     def close(self):
         """function close writer"""
         raise NotImplementedError()
-        
+
     def write(self, buffer: list):
         """functiont to write buffer to file"""
         raise NotImplementedError()

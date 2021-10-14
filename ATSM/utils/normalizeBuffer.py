@@ -1,3 +1,6 @@
+"""
+module containing Normalizing buffer
+"""
 
 import numpy as np
 

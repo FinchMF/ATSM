@@ -1,11 +1,14 @@
+"""
+module containing window operations 
+"""
 
 import numpy as np
 
 class Windows:
-
+    """object to house to window operations"""
     @staticmethod
     def apply(buffer: np.ndarray, window: np.ndarray) -> None:
-
+        """function to set buffer to window"""
         if window is None:
             return
 
@@ -14,7 +17,7 @@ class Windows:
 
     @staticmethod
     def hanning(length: int) -> np.ndarray:
-
+        """function for hanning operation"""
         if length <= 0:
             return np.zeros(0)
 
@@ -23,7 +26,7 @@ class Windows:
 
     @staticmethod
     def product(window_1: np.ndarray, window_2: np.ndarray) -> (np.ndarray, None):
-
+        """function for production operation of two windows"""
         if window_1 is None:
             return window_2
 

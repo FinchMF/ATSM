@@ -1,6 +1,7 @@
-
+"""
+module containing PhaseVocoder algorithim
+"""
 import numpy as np
-
 from ATSM.base import A2S_TSM, Converter
 from ATSM.utils import Windows as W
 
@@ -127,7 +128,7 @@ class PhaseVocoderConverter(Converter):
     def clear(self):
         self.__first: bool = True
 
-    def convert_frame(self, frame: int) -> int:
+    def convert_frame(self, frame: np.ndarray) -> np.ndarray:
 
         for k in range(0, self.channels):
 

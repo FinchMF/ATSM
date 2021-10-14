@@ -1,3 +1,6 @@
+"""
+module containing Central buffer
+"""
 
 import numpy as np
 

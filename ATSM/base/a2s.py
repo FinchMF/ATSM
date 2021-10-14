@@ -157,17 +157,18 @@ class A2S_TSM(TSM):
     def checkNormalWindow(self):
         """function to check normalized window"""
         if self.normalize_window is None:
+            # set normalized to to a an array of ones 
             self.normalize_window: np.ndarray = np.ones(self.frame_length)
 
     def initializeBuffers(self):
         """function to initialize buffers"""
         delta: int = self.delta_before + self.delta_after
-        self.__in_buffer: np.ndarray = CBuffer(self.channels, self.frame_length + delta)
+        self.__in_buffer: CBuffer = CBuffer(self.channels, self.frame_length + delta)
         self.__analysis_frame: np.ndarray = np.empty(
             (self.channels, self.frame_length + delta)
         )
-        self.__out_buffer: np.ndarray = CBuffer(self.channels, self.frame_length)
-        self.__normalize_buffer = NormalizeBuffer(self.frame_length)
+        self.__out_buffer: CBuffer = CBuffer(self.channels, self.frame_length)
+        self.__normalize_buffer: NormalizeBuffer = NormalizeBuffer(self.frame_length)
 
         self.clear()
 
@@ -189,7 +190,7 @@ class A2S_TSM(TSM):
         if self.in_buffer.remaining_length == 0:
             raise RuntimeError("There is still data to process in the input buffer, \
                                 flush_to only to be called when write_to returns True")
-
+        # flush data from out buffer to audio writer
         n: int = self.out_buffer.write_to(writer)
         if self.out_buffer.ready == 0:
             self.clear()
@@ -206,34 +207,36 @@ class A2S_TSM(TSM):
             n_frames: int = 0
         else:
             n_frames: int = input_lenth // self.analysis_hop + 1
-        
+        # compute number of frames with synthesis hop to find output length
         return n_frames * self.synthesis_hop
 
     def _process_frame(self):
-        """read an analysis frame from the input buffer, process it and write
-            to output buffer"""
-        # gen analysis frame and remove unneeded samples
+        """
+        read an analysis frame from the input buffer, process it 
+        and write to output buffer
+        """
+        # generate analysis frame and remove unneeded samples
         self.in_buffer.peek(self.analysis_frame)
         self.in_buffer.remove(self.analysis_hop)
-
+        # apply analysis frame to the analysis window
         W.apply(self.analysis_frame, self.analysis_window)
-
+        # generate sythesis frame
         synthesis_frame: int = self.converter.convert_frame(self.analysis_frame)
-
+        # apply synthesis frame to synthesis window
         W.apply(synthesis_frame, self.synthesis_window)
-
+        # add the the synthesis frame to the out buffer
         self.out_buffer.add(synthesis_frame)
+        # set normalization window to the normalization buffer
         self.normalize_buffer.add(self.normalize_window)
-
+        # normalize synthesized frames
         normalize: object = self.normalize_buffer.to_array(end=self.synthesis_hop)
-
         normalize[normalize < EPSILON] = 1
         self.out_buffer.divide(normalize)
         self.out_buffer.set_ready(self.synthesis_hop)
         self.normalize_buffer.remove(self.synthesis_hop)
 
     def readFrom(self, reader: object) -> int:
-
+        # implementation of read from functionality
         n: int = reader.skip(self.skip_input_samples)
         self.skip_input_samples -= n
 
@@ -259,12 +262,12 @@ class A2S_TSM(TSM):
         return result
 
     def setSpeed(self, speed: float):
-
+        # implementation of declaring speed for modulation functionality
         self.analysis_hop: int = int(self.synthesis_hop * speed)
         self.converter.set_analysis_hop(self.analysis_hop)
 
     def writeTo(self, writer: object) -> tuple: 
-
+        # implementation of write to file from buffer functionality
         n: int = self.out_buffer.write_to(writer)
         self.out_buffer.right_pad(n)
 
@@ -278,12 +281,15 @@ class A2S_TSM(TSM):
 
 
 class Converter(object):
-
+    """base object for converter"""
     def clear(self):
+        """function to clear buffers"""
         return
 
     def convert_frame(self, analysis_frame: int):
+        """functiont to convert analysis frames to synthesis frames"""
         raise NotImplementedError
 
     def set_analysis_hop(self, analysist_hop: int):
+        """function to set analysis hop"""
         return

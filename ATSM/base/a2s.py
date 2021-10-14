@@ -1,6 +1,8 @@
-
+"""
+module containing conversion process between 
+analysis and synthesis frames during modulation
+"""
 import numpy as np
-
 from ATSM.utils import Windows as W
 from ATSM.utils import CBuffer, NormalizeBuffer
 from .tsm import TSM
@@ -170,7 +172,7 @@ class A2S_TSM(TSM):
         self.clear()
 
     def clear(self):
-        # clear buffers
+        # implementation of clear functionality
         self.in_buffer.remove(self.in_buffer.length)
         self.out_buffer.remove(self.out_buffer.length)
         self.out_buffer.right_pad(self.frame_length)
@@ -183,7 +185,7 @@ class A2S_TSM(TSM):
         self.converter.clear()
 
     def flushTo(self, writer: object) -> tuple:
-        
+        # implemention of flush functionality
         if self.in_buffer.remaining_length == 0:
             raise RuntimeError("There is still data to process in the input buffer, \
                                 flush_to only to be called when write_to returns True")
@@ -198,7 +200,7 @@ class A2S_TSM(TSM):
         return result
 
     def getMaxOutputLength(self, input_lenght: int) -> int:
-
+        # implementation of max output functionality
         input_length -= self.skip_input_samples
         if input_length <= 0:
             n_frames: int = 0

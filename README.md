@@ -4,7 +4,7 @@ Audio Time Scale Modulation
 
 ## Install
 
-    git clone 
+    git clone git@github.com:FinchMF/ATSM.git
     pip3 install -r requirements.txt
 
 ## How to use
